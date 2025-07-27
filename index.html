@@ -1,1 +1,1228 @@
-<!-- Inserta aquí tu index.html completo con el CSS mejorado y las funciones -->
+<!-- Ins<!-- Inserta aquí tu index.html completo con el CSS mejorado y las funciones --><!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Editor Avanzado - Photoshop-like</title>
+  <style>
+ :root {
+  --bg-dark: #1E1E1E;
+  --bg-panel: #252526;
+  --bg-panel-light: #2D2D30;
+  --border-color: #3A3A3A;
+  --text-light: #EAEAEA;
+  --text-muted: #AAAAAA;
+  --primary: #3A96FF;
+  --primary-hover: #1E7BE5;
+  --danger: #E74C3C;
+  --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  --radius: 6px;
+  --transition: 0.2s ease;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", "Roboto", "Inter", sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+  overflow: hidden;
+}
+
+/* 📌 Contenedor general */
+.editor-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* 📌 Sidebar */
+.sidebar {
+  width: 280px;
+  background: var(--bg-panel);
+  padding: 15px;
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.sidebar-section {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-section h3 {
+  margin: 0 0 10px;
+  font-size: 13px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+}
+
+/* 📌 Galería */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.gallery-item {
+  background: var(--bg-panel-light);
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.gallery-item:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow);
+}
+
+.gallery-item img {
+  width: 100%;
+  display: block;
+}
+
+/* 📌 Panel principal */
+.main-editor {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 📌 Topbar */
+.topbar, .toolbar {
+  background: var(--bg-panel);
+  padding: 10px 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--border-color);
+  flex-wrap: wrap;
+}
+
+/* 📌 Canvas */
+.canvas-wrapper {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #222;
+  position: relative;
+}
+
+canvas {
+  background: white;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  cursor: crosshair;
+}
+
+/* 📌 Botones */
+button, select, input[type="number"], input[type="text"] {
+  background: var(--bg-panel-light);
+  color: var(--text-light);
+  border: 1px solid var(--border-color);
+  padding: 6px 10px;
+  font-size: 14px;
+  border-radius: var(--radius);
+  transition: background var(--transition), transform var(--transition);
+}
+
+button:hover, select:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+button.primary {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+button.danger {
+  background: var(--danger);
+  border-color: var(--danger);
+}
+
+/* 📌 Input file */
+.custom-file-upload {
+  display: block;
+  background: var(--bg-panel-light);
+  text-align: center;
+  padding: 8px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: background var(--transition);
+}
+
+.custom-file-upload:hover {
+  background: var(--primary-hover);
+}
+
+/* 📌 Panel de capas */
+.layers-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.layer-item {
+  display: flex;
+  align-items: center;
+  background: var(--bg-panel-light);
+  padding: 8px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background var(--transition);
+}
+
+.layer-item:hover {
+  background: #3A3A3D;
+}
+
+.layer-item.selected {
+  background: var(--primary);
+}
+
+.layer-thumbnail {
+  width: 28px;
+  height: 28px;
+  background: #444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.layer-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.layer-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.layer-visibility, .layer-lock {
+  cursor: pointer;
+  font-size: 16px;
+}
+
+/* 📌 Info Zoom */
+.zoom-info {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(0,0,0,0.6);
+  padding: 4px 8px;
+  border-radius: var(--radius);
+  font-size: 12px;
+}
+
+/* 📌 Overlay Drag */
+.drop-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(50, 50, 50, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 22px;
+  color: white;
+  opacity: 0;
+  transition: opacity var(--transition);
+  pointer-events: none;
+}
+
+.drop-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+  </style>
+</head>
+<body>
+<div class="editor-container">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <label for="imageUpload" class="custom-file-upload">
+        📁 Cargar imágenes
+      </label>
+      <input type="file" id="imageUpload" accept="image/*" multiple />
+      <div class="gallery" id="gallery"></div>
+    </div>
+
+<div class="sidebar-section">
+  <h3>Capas</h3>
+  <button id="addSolidColor" class="primary" style="width:100%; margin-bottom:10px;">
+    ➕ Nueva capa de color
+  </button>
+  <div class="layers-panel" id="layersPanel"></div>
+</div>
+  </aside>
+
+  <main class="main-editor">
+    <div class="topbar">
+      <label>Tamaño lienzo:</label>
+      <select id="canvasSize">
+        <option value="auto">Auto (primera imagen)</option>
+        <option value="800x600">800×600</option>
+        <option value="1080x1080">1080×1080</option>
+        <option value="1920x1080">1920×1080</option>
+        <option value="A4">A4 (2480×3508)</option>
+        <option value="custom">Personalizado</option>
+      </select>
+      <input type="number" id="customWidth" placeholder="Ancho" style="width:80px" />
+      <input type="number" id="customHeight" placeholder="Alto" style="width:80px" />
+      <button id="applySize" class="primary">Aplicar</button>
+      
+      <div style="flex-grow: 1;"></div>
+      
+      
+    </div>
+    
+    <div class="toolbar">
+      <button id="selectTool" class="primary" title="Herramienta de selección (V)">✏️ Selección</button>
+      <button id="textTool" title="Herramienta de texto (T)">🔤 Texto</button>
+      <select id="fontFamily">
+  <option value="Arial">Arial</option>
+  <option value="Verdana">Verdana</option>
+  <option value="Times New Roman">Times New Roman</option>
+  <option value="Courier New">Courier New</option>
+</select>
+      
+      <div style="width: 1px; background: var(--border-color); margin: 0 5px;"></div>
+      
+      <input type="color" id="colorPicker" value="#000000" title="Color">
+      <select id="fontSize">
+        <option value="16">16px</option>
+        <option value="24" selected>24px</option>
+        <option value="32">32px</option>
+        <option value="48">48px</option>
+        <option value="64">64px</option>
+      </select>
+      
+      <div style="width: 1px; background: var(--border-color); margin: 0 5px;"></div>
+      
+      <button id="toFront" title="Traer al frente">🔼 Frente</button>
+      <button id="toBack" title="Enviar al fondo">🔽 Fondo</button>
+      <button id="deleteObject" class="danger" title="Eliminar objeto (Supr)">🗑️ Eliminar</button>
+      
+      <div style="width: 1px; background: var(--border-color); margin: 0 5px;"></div>
+      
+      <button id="zoomIn" title="Acercar (Ctrl +)">🔍+</button>
+      <button id="zoomOut" title="Alejar (Ctrl -)">🔍-</button>
+      <button id="zoomReset" title="Restablecer zoom (Ctrl 0)">🔍 100%</button>
+      <button id="downloadPNG" class="primary">⬇️ Exportar PNG</button>
+    </div>
+    
+    <div class="canvas-wrapper" id="canvasContainer">
+      <canvas id="editorCanvas"></canvas>
+      <div class="zoom-info" id="zoomInfo">100%</div>
+      <div class="drop-overlay" id="dropOverlay">Suelta la imagen aquí</div>
+    </div>
+  </main>
+</div>
+
+<script>
+// Configuración inicial
+const canvas = document.getElementById("editorCanvas");
+const ctx = canvas.getContext("2d");
+const container = document.getElementById("canvasContainer");
+const zoomInfo = document.getElementById("zoomInfo");
+const dropOverlay = document.getElementById("dropOverlay");
+
+// Variables de estado
+let zoom = 1;
+let panX = 0;
+let panY = 0;
+let isPanning = false;
+let panStart = { x: 0, y: 0 };
+let isDragging = false;
+let dragStart = { x: 0, y: 0 };
+let isResizing = false;
+let resizeHandle = null;
+let currentTool = 'select'; // 'select', 'text'
+let isDrawingText = false;
+let canvasInitialized = false;
+
+// Almacenamiento de objetos
+let objects = [];
+let selected = null;
+let nextId = 1;
+
+// Variables para el sistema de capas
+let draggedLayer = null;
+let draggedOverLayer = null;
+
+// Inicialización
+init();
+
+function init() {
+  setupEventListeners();
+  updateZoomInfo();
+}
+
+function setupEventListeners() {
+  // Canvas mouse handling
+  canvas.addEventListener("mousedown", handleMouseDown);
+  canvas.addEventListener("mousemove", handleMouseMove);
+  canvas.addEventListener("mouseup", handleMouseUp);
+  canvas.addEventListener("dblclick", handleDoubleClick);
+  canvas.addEventListener("contextmenu", e => e.preventDefault());
+  
+  // Zoom con rueda del mouse
+  container.addEventListener("wheel", handleWheel, { passive: false });
+  
+  // Teclado
+  document.addEventListener("keydown", handleKeyDown);
+  
+  // Botones de la interfaz
+  document.getElementById("selectTool").addEventListener("click", () => {
+    currentTool = 'select';
+    document.getElementById("selectTool").classList.add('primary');
+    document.getElementById("textTool").classList.remove('primary');
+  });
+  document.getElementById("textTool").addEventListener("click", () => {
+    currentTool = 'text';
+    document.getElementById("textTool").classList.add('primary');
+    document.getElementById("selectTool").classList.remove('primary');
+  });
+  document.getElementById("toFront").addEventListener("click", bringToFront);
+  document.getElementById("toBack").addEventListener("click", sendToBack);
+  document.getElementById("deleteObject").addEventListener("click", deleteSelected);
+  document.getElementById("zoomIn").addEventListener("click", () => adjustZoom(1.2));
+  document.getElementById("zoomOut").addEventListener("click", () => adjustZoom(0.8));
+  document.getElementById("zoomReset").addEventListener("click", resetZoom);
+  document.getElementById("downloadPNG").addEventListener("click", downloadCanvas);
+  
+  // Tamaño del canvas
+  document.getElementById("applySize").addEventListener("click", applyCanvasSize);
+  document.getElementById("canvasSize").addEventListener("change", function() {
+    const customFields = document.getElementById("customWidth").parentNode;
+    customFields.style.display = this.value === "custom" ? "inline-block" : "none";
+  });
+  
+  // Carga de imágenes
+  document.getElementById("imageUpload").addEventListener("change", handleImageUpload);
+  
+  // Drag and drop desde la galería
+  setupGalleryDragAndDrop();
+  
+  // Drag and drop desde el sistema de archivos
+  setupFileDrop();
+  
+  // Drag and drop para reordenar capas
+  setupLayersDragAndDrop();
+}
+
+
+
+document.getElementById("addSolidColor").addEventListener("click", () => {
+  addSolidColorLayer("#ff0000"); // Color inicial por defecto (rojo)
+});
+
+function addSolidColorLayer(color) {
+  const newLayer = {
+    id: nextId++,
+    type: "solid",
+    color: color,
+    x: 0,
+    y: 0,
+    width: canvas.width,
+    height: canvas.height,
+    visible: true,
+    locked: false
+  };
+
+  objects.push(newLayer);
+  selected = newLayer;
+  redraw();
+}
+
+
+// Funciones principales de dibujo
+function redraw() {
+  // Limpiar el canvas
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Aplicar transformaciones de zoom/pan
+  ctx.setTransform(zoom, 0, 0, zoom, panX, panY);
+  
+  // Dibujar todos los objetos (del primero al último para el orden z)
+  objects.forEach(obj => {
+    if (obj.visible !== false) {
+      drawObject(obj);
+    }
+    
+    // Dibujar borde de selección
+    if (obj === selected) {
+      drawSelectionOutline(obj);
+    }
+  });
+  
+  // Actualizar panel de capas
+  updateLayersPanel();
+}
+
+function drawObject(obj) {
+  ctx.save();
+
+  if (obj.type === "image") {
+    ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height);
+  }
+  else if (obj.type === "solid") {
+    ctx.fillStyle = obj.color;
+    ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
+  }
+  else if (obj.type === "text") {
+    ctx.font = `${obj.fontSize}px ${obj.fontFamily || "Arial"}`;
+    ctx.fillStyle = obj.color || "#000000";
+    ctx.fillText(obj.text, obj.x, obj.y);
+
+    // Guardar ancho/alto para selección y redimensionamiento
+    obj.width = ctx.measureText(obj.text).width;
+    obj.height = obj.fontSize;
+  }
+
+  ctx.restore();
+}
+
+
+function drawSelectionOutline(obj) {
+  if (obj.visible === false) return;
+  
+  ctx.save();
+  
+  ctx.strokeStyle = '#3498db';
+  ctx.lineWidth = 2 / zoom;
+  ctx.setLineDash([5 / zoom, 5 / zoom]);
+  
+  if (obj.type === "image") {
+    ctx.strokeRect(obj.x, obj.y, obj.width, obj.height);
+    
+    // Dibujar manejadores de redimensionamiento
+    const handleSize = 8 / zoom;
+    const handles = [
+      { x: obj.x, y: obj.y, cursor: 'nw-resize', id: 'nw' },
+      { x: obj.x + obj.width, y: obj.y, cursor: 'ne-resize', id: 'ne' },
+      { x: obj.x, y: obj.y + obj.height, cursor: 'sw-resize', id: 'sw' },
+      { x: obj.x + obj.width, y: obj.y + obj.height, cursor: 'se-resize', id: 'se' }
+    ];
+    
+    ctx.fillStyle = '#3498db';
+    handles.forEach(handle => {
+      ctx.fillRect(handle.x - handleSize/2, handle.y - handleSize/2, handleSize, handleSize);
+    });
+  } 
+  else if (obj.type === "text") {
+    ctx.font = `${obj.fontSize}px Arial`;
+    const metrics = ctx.measureText(obj.text);
+    const textHeight = obj.fontSize;
+    ctx.strokeRect(obj.x, obj.y - textHeight, metrics.width, textHeight);
+  }
+  
+  ctx.restore();
+}
+
+// Manejo de eventos del mouse
+function handleMouseDown(e) {
+  const mousePos = getMousePos(e);
+  
+  // Pan con botón derecho o rueda del mouse
+  if (e.button === 2 || (e.button === 0 && e.ctrlKey)) {
+    isPanning = true;
+    panStart = { x: e.clientX, y: e.clientY };
+    return;
+  }
+  
+  // Herramienta de selección
+  if (currentTool === 'select') {
+    // Verificar si hicimos clic en un manejador de redimensionamiento
+    if (selected && selected.type === 'image') {
+      const handleSize = 10 / zoom;
+      const handles = [
+        { x: selected.x, y: selected.y, id: 'nw' },
+        { x: selected.x + selected.width, y: selected.y, id: 'ne' },
+        { x: selected.x, y: selected.y + selected.height, id: 'sw' },
+        { x: selected.x + selected.width, y: selected.y + selected.height, id: 'se' }
+      ];
+      
+      for (const handle of handles) {
+        if (Math.abs(mousePos.x - handle.x) < handleSize && 
+            Math.abs(mousePos.y - handle.y) < handleSize) {
+          isResizing = true;
+          resizeHandle = handle.id;
+          dragStart = { x: mousePos.x, y: mousePos.y };
+          return;
+        }
+      }
+    }
+    
+    // Verificar si hicimos clic en un objeto
+    selected = null;
+    
+    // Buscar desde el último objeto (que está encima de los demás)
+for (let i = objects.length - 1; i >= 0; i--) {
+  const obj = objects[i];
+  if (obj.visible !== false && isPointInObject(mousePos, obj)) {
+    selected = obj.locked ? null : obj;
+    break;
+  }
+}
+    
+    // Si seleccionamos un objeto, preparar para arrastrar
+    if (selected) {
+      isDragging = true;
+      dragStart = { x: mousePos.x - selected.x, y: mousePos.y - selected.y };
+    }
+  }
+  // Herramienta de texto
+  else if (currentTool === 'text') {
+    const text = prompt("Ingrese el texto:", "Texto de ejemplo");
+    if (text) {
+      const fontSize = parseInt(document.getElementById("fontSize").value);
+      const color = document.getElementById("colorPicker").value;
+      
+  const newText = {
+  id: nextId++,
+  type: "text",
+  text: text,
+  x: mousePos.x,
+  y: mousePos.y,
+  fontSize: parseInt(document.getElementById("fontSize").value),
+  fontFamily: document.getElementById("fontFamily")?.value || "Arial",
+  color: document.getElementById("colorPicker").value,
+  visible: true,
+  locked: false,
+  width: 0,
+  height: 0
+};
+      
+      objects.push(newText);
+      selected = newText;
+    }
+  }
+  
+  redraw();
+}
+
+function handleMouseMove(e) {
+  const mousePos = getMousePos(e);
+  
+  // Panning
+  if (isPanning) {
+    const dx = e.clientX - panStart.x;
+    const dy = e.clientY - panStart.y;
+    panX += dx;
+    panY += dy;
+    panStart.x = e.clientX;
+    panStart.y = e.clientY;
+    redraw();
+    return;
+  }
+  
+ if (isResizing && selected) {
+  const deltaX = mousePos.x - dragStart.x;
+  const deltaY = mousePos.y - dragStart.y;
+
+  // ✅ Si es un texto, cambiar su tamaño en lugar de ancho/alto
+  if (selected.type === "text") {
+    let newFontSize = selected.fontSize + deltaY;
+
+    // SHIFT → redimensionar proporcionalmente
+    if (event.shiftKey) {
+      newFontSize = selected.fontSize + Math.max(deltaX, deltaY);
+    }
+
+    selected.fontSize = Math.max(10, newFontSize); // mínimo 10px
+    redraw();
+    return;
+  }
+
+  // ✅ Si es imagen o capa sólida → redimensionar con esquinas
+  switch (resizeHandle) {
+    case "nw":
+      selected.x += deltaX;
+      selected.y += deltaY;
+      selected.width -= deltaX;
+      selected.height -= deltaY;
+      break;
+    case "ne":
+      selected.y += deltaY;
+      selected.width += deltaX;
+      selected.height -= deltaY;
+      break;
+    case "sw":
+      selected.x += deltaX;
+      selected.width -= deltaX;
+      selected.height += deltaY;
+      break;
+    case "se":
+      selected.width += deltaX;
+      selected.height += deltaY;
+      break;
+  }
+
+  // ✅ SHIFT → redimensionar proporcionalmente
+  if (event.shiftKey) {
+    const aspectRatio = selected.originalWidth / selected.originalHeight || 1;
+    selected.height = selected.width / aspectRatio;
+  }
+
+  // Mantener tamaño mínimo
+  selected.width = Math.max(10, selected.width);
+  selected.height = Math.max(10, selected.height);
+
+  dragStart = { x: mousePos.x, y: mousePos.y };
+  redraw();
+  return;
+}
+  
+  // Arrastrar objeto seleccionado
+  if (isDragging && selected) {
+    selected.x = mousePos.x - dragStart.x;
+    selected.y = mousePos.y - dragStart.y;
+    redraw();
+  }
+}
+
+function handleMouseUp() {
+  isPanning = false;
+  isDragging = false;
+  isResizing = false;
+  resizeHandle = null;
+}
+
+function handleDoubleClick(e) {
+  if (currentTool === 'select' && selected && selected.type === 'text') {
+    const newText = prompt("Editar texto:", selected.text);
+    if (newText !== null) {
+      selected.text = newText;
+      redraw();
+    }
+  }
+}
+
+function handleWheel(e) {
+  // Zoom con Ctrl + rueda o Alt + rueda
+  if (e.ctrlKey || e.altKey) {
+    e.preventDefault();
+    const zoomIntensity = 0.1;
+    const mouseX = (e.offsetX - panX) / zoom;
+    const mouseY = (e.offsetY - panY) / zoom;
+    const direction = e.deltaY > 0 ? -1 : 1;
+    const factor = 1 + direction * zoomIntensity;
+    
+    adjustZoom(factor, mouseX, mouseY);
+  }
+  // Desplazamiento horizontal con Shift + rueda
+  else if (e.shiftKey) {
+    e.preventDefault();
+    container.scrollLeft += e.deltaY;
+  }
+}
+
+function handleKeyDown(e) {
+  // Teclas de acceso rápido
+  if (e.ctrlKey) {
+    switch (e.key) {
+      case '+': case '=': // Ctrl + +/=
+        adjustZoom(1.2);
+        e.preventDefault();
+        break;
+      case '-': // Ctrl + -
+        adjustZoom(0.8);
+        e.preventDefault();
+        break;
+      case '0': // Ctrl + 0
+        resetZoom();
+        e.preventDefault();
+        break;
+    }
+  }
+  
+  // Otras teclas
+  switch (e.key) {
+    case 'Delete': case 'Backspace':
+      deleteSelected();
+      break;
+    case 'v': case 'V':
+      currentTool = 'select';
+      document.getElementById("selectTool").classList.add('primary');
+      document.getElementById("textTool").classList.remove('primary');
+      break;
+    case 't': case 'T':
+      currentTool = 'text';
+      document.getElementById("textTool").classList.add('primary');
+      document.getElementById("selectTool").classList.remove('primary');
+      break;
+    case 'ArrowUp':
+      if (selected) {
+        selected.y -= 1;
+        redraw();
+      }
+      break;
+    case 'ArrowDown':
+      if (selected) {
+        selected.y += 1;
+        redraw();
+      }
+      break;
+    case 'ArrowLeft':
+      if (selected) {
+        selected.x -= 1;
+        redraw();
+      }
+      break;
+    case 'ArrowRight':
+      if (selected) {
+        selected.x += 1;
+        redraw();
+      }
+      break;
+  }
+}
+
+// Funciones de zoom
+function adjustZoom(factor, centerX, centerY) {
+  const oldZoom = zoom;
+  zoom *= factor;
+  
+  // Limitar zoom mínimo y máximo
+  zoom = Math.max(0.1, Math.min(zoom, 10));
+  
+  // Si se proporcionó un centro de zoom, ajustar el pan para mantener la posición
+  if (centerX !== undefined && centerY !== undefined) {
+    panX -= centerX * (zoom - oldZoom);
+    panY -= centerY * (zoom - oldZoom);
+  }
+  
+  redraw();
+  updateZoomInfo();
+}
+
+function resetZoom() {
+  zoom = 1;
+  panX = 0;
+  panY = 0;
+  redraw();
+  updateZoomInfo();
+}
+
+function updateZoomInfo() {
+  zoomInfo.textContent = `${Math.round(zoom * 100)}%`;
+}
+
+// Funciones de utilidad
+function getMousePos(e) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: (e.clientX - rect.left - panX) / zoom,
+    y: (e.clientY - rect.top - panY) / zoom
+  };
+}
+
+function isPointInObject(point, obj) {
+  if (obj.visible === false) return false;
+  
+  if (obj.type === "image") {
+    return point.x >= obj.x && point.x <= obj.x + obj.width &&
+           point.y >= obj.y && point.y <= obj.y + obj.height;
+  } 
+  else if (obj.type === "text") {
+    ctx.font = `${obj.fontSize}px Arial`;
+    const metrics = ctx.measureText(obj.text);
+    const textHeight = obj.fontSize;
+    return point.x >= obj.x && point.x <= obj.x + metrics.width &&
+           point.y >= obj.y - textHeight && point.y <= obj.y;
+  }
+  return false;
+}
+
+// Manejo de objetos
+function bringToFront() {
+  if (selected) {
+    const index = objects.indexOf(selected);
+    if (index < objects.length - 1) {
+      objects.splice(index, 1);
+      objects.push(selected);
+      redraw();
+    }
+  }
+}
+
+function sendToBack() {
+  if (selected) {
+    const index = objects.indexOf(selected);
+    if (index > 0) {
+      objects.splice(index, 1);
+      objects.unshift(selected);
+      redraw();
+    }
+  }
+}
+
+function deleteSelected() {
+  if (selected) {
+    const index = objects.indexOf(selected);
+    objects.splice(index, 1);
+    selected = null;
+    redraw();
+  }
+}
+
+function handleImageUpload(e) {
+  const files = e.target.files;
+  const gallery = document.getElementById("gallery");
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    const reader = new FileReader();
+
+    reader.onload = function (event) {
+      const img = document.createElement("img");
+      img.src = event.target.result;
+      img.draggable = true; // ✅ Ahora sí será draggable
+      img.dataset.src = event.target.result;
+      img.dataset.name = file.name;
+
+      // ✅ Al hacer doble clic, agregar directamente al canvas
+      img.addEventListener("dblclick", () => {
+        addImageToCanvas(img.dataset.src, img.dataset.name);
+      });
+
+      const galleryItem = document.createElement("div");
+      galleryItem.className = "gallery-item";
+      galleryItem.appendChild(img);
+      gallery.appendChild(galleryItem);
+
+      // ✅ Si es la primera imagen, usarla como lienzo
+      if (objects.length === 0) {
+        addImageToCanvas(event.target.result, file.name);
+      }
+    };
+
+    reader.readAsDataURL(file);
+  }
+}
+
+
+
+function setupGalleryDragAndDrop() {
+  const gallery = document.getElementById("gallery");
+
+  gallery.addEventListener("dragstart", function (e) {
+    if (e.target.tagName === "IMG") {
+      e.dataTransfer.setData("text/plain", e.target.dataset.src);
+      e.dataTransfer.setData("image/name", e.target.dataset.name);
+      e.dataTransfer.effectAllowed = "copy";
+    }
+  });
+
+  container.addEventListener("dragover", function (e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+  });
+
+  container.addEventListener("drop", function (e) {
+    e.preventDefault();
+
+    if (e.dataTransfer.types.includes("text/plain")) {
+      const imageSrc = e.dataTransfer.getData("text/plain");
+      const imageName = e.dataTransfer.getData("image/name");
+      addImageToCanvas(imageSrc, imageName);
+    }
+  });
+}
+
+function addImageToCanvas(imageSrc, imageName = "Imagen") {
+  const img = new Image();
+  img.onload = function () {
+    if (!canvasInitialized && document.getElementById("canvasSize").value === "auto") {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      canvasInitialized = true;
+    }
+
+    const x = (canvas.width - img.width) / 2;
+    const y = (canvas.height - img.height) / 2;
+
+    const newImage = {
+      id: nextId++,
+      type: "image",
+      img: img,
+      x: x,
+      y: y,
+      width: img.width,
+      height: img.height,
+      name: imageName,
+      visible: true,
+      locked: objects.length === 0 // Primera imagen = bloqueada
+    };
+
+    objects.push(newImage);
+    selected = newImage.locked ? null : newImage;
+    redraw();
+  };
+  img.src = imageSrc;
+}
+
+
+
+
+
+function setupFileDrop() {
+  container.addEventListener("dragover", function(e) {
+    e.preventDefault();
+    dropOverlay.classList.add('active');
+  });
+  
+  container.addEventListener("dragleave", function() {
+    dropOverlay.classList.remove('active');
+  });
+  
+  container.addEventListener("drop", function(e) {
+    e.preventDefault();
+    dropOverlay.classList.remove('active');
+
+    // ✅ Solo manejar archivos desde el PC
+    if (e.dataTransfer.files.length > 0) {
+      const files = e.dataTransfer.files;
+      for (let i = 0; i < files.length; i++) {
+        if (files[i].type.match('image.*')) {
+          const reader = new FileReader();
+          reader.onload = function(event) {
+            addImageToCanvas(event.target.result, files[i].name);
+          };
+          reader.readAsDataURL(files[i]);
+        }
+      }
+    }
+  });
+}
+
+
+function addImageToCanvas(imageSrc, imageName = 'Imagen') {
+  const img = new Image();
+  img.onload = function () {
+    if (!canvasInitialized && document.getElementById("canvasSize").value === "auto") {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      canvasInitialized = true;
+    }
+
+    const centerX = (canvas.width - img.width) / 2;
+    const centerY = (canvas.height - img.height) / 2;
+
+    const newImage = {
+      id: nextId++,
+      type: "image",
+      img: img,
+      x: centerX,
+      y: centerY,
+      width: img.width,
+      height: img.height,
+      originalWidth: img.width,
+      originalHeight: img.height,
+      name: imageName,
+      visible: true,
+    };
+
+    objects.push(newImage);
+    selected = newImage;
+    redraw();
+  };
+  img.src = imageSrc;
+}
+
+
+
+// Panel de capas
+function updateLayersPanel() {
+  const layersPanel = document.getElementById("layersPanel");
+  layersPanel.innerHTML = '';
+  
+  // Mostrar capas en orden inverso (la última encima)
+  for (let i = objects.length - 1; i >= 0; i--) {
+    const obj = objects[i];
+    const layerItem = document.createElement("div");
+    layerItem.className = `layer-item ${obj === selected ? 'selected' : ''}`;
+    layerItem.dataset.id = obj.id;
+    layerItem.draggable = true;
+    
+    const thumb = document.createElement("div");
+    thumb.className = "layer-thumbnail";
+    thumb.textContent = obj.type === 'image' ? '🖼️' : '🔤';
+    
+    const name = document.createElement("div");
+    name.className = "layer-name";
+    name.textContent = obj.name || (obj.type === 'text' ? `Texto: ${obj.text}` : `Imagen ${obj.id}`);
+    
+    const controls = document.createElement("div");
+    controls.className = "layer-controls";
+    
+    const visibility = document.createElement("span");
+    visibility.className = "layer-visibility";
+    visibility.textContent = obj.visible !== false ? '👁️' : '👁️‍🗨️';
+    visibility.title = obj.visible !== false ? 'Ocultar capa' : 'Mostrar capa';
+    visibility.addEventListener("click", (e) => {
+      e.stopPropagation();
+      obj.visible = !obj.visible;
+      redraw();
+    });
+    
+    controls.appendChild(visibility);
+
+const lockBtn = document.createElement("span");
+lockBtn.textContent = obj.locked ? "🔒" : "🔓";
+lockBtn.title = obj.locked ? "Desbloquear capa" : "Bloquear capa";
+lockBtn.style.cursor = "pointer";
+lockBtn.style.marginLeft = "10px";
+
+lockBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  obj.locked = !obj.locked;
+  redraw();
+});
+
+controls.appendChild(lockBtn);
+
+if (obj.type === "solid") {
+  const colorPicker = document.createElement("input");
+  colorPicker.type = "color";
+  colorPicker.value = obj.color;
+  colorPicker.style.marginLeft = "10px";
+  colorPicker.addEventListener("input", (e) => {
+    obj.color = e.target.value;
+    redraw();
+  });
+  controls.appendChild(colorPicker);
+}
+    
+    layerItem.appendChild(thumb);
+    layerItem.appendChild(name);
+    layerItem.appendChild(controls);
+    
+    layerItem.addEventListener("click", () => {
+      selected = obj;
+      redraw();
+    });
+    
+    layersPanel.appendChild(layerItem);
+  }
+}
+
+function setupLayersDragAndDrop() {
+  const layersPanel = document.getElementById("layersPanel");
+  
+  layersPanel.addEventListener("dragstart", function(e) {
+    if (e.target.classList.contains("layer-item")) {
+      draggedLayer = objects.find(obj => obj.id.toString() === e.target.dataset.id);
+      e.target.classList.add('dragging');
+    }
+  });
+  
+  layersPanel.addEventListener("dragover", function(e) {
+    e.preventDefault();
+    const targetLayer = e.target.closest(".layer-item");
+    if (targetLayer && targetLayer !== draggedLayer) {
+      draggedOverLayer = objects.find(obj => obj.id.toString() === targetLayer.dataset.id);
+    }
+  });
+  
+  layersPanel.addEventListener("dragleave", function(e) {
+    if (e.target.classList.contains("layer-item")) {
+      e.target.classList.remove('drag-over');
+    }
+  });
+  
+  layersPanel.addEventListener("drop", function(e) {
+    e.preventDefault();
+    if (draggedLayer && draggedOverLayer) {
+      const fromIndex = objects.indexOf(draggedLayer);
+      const toIndex = objects.indexOf(draggedOverLayer);
+      
+      if (fromIndex !== -1 && toIndex !== -1) {
+        objects.splice(fromIndex, 1);
+        objects.splice(toIndex, 0, draggedLayer);
+        redraw();
+      }
+    }
+    
+    // Limpiar clases
+    const draggingItems = layersPanel.querySelectorAll('.dragging, .drag-over');
+    draggingItems.forEach(item => {
+      item.classList.remove('dragging', 'drag-over');
+    });
+    
+    draggedLayer = null;
+    draggedOverLayer = null;
+  });
+  
+  layersPanel.addEventListener("dragend", function() {
+    const draggingItems = layersPanel.querySelectorAll('.dragging');
+    draggingItems.forEach(item => {
+      item.classList.remove('dragging');
+    });
+    draggedLayer = null;
+    draggedOverLayer = null;
+  });
+}
+
+// Tamaño del canvas
+function applyCanvasSize() {
+  let w, h;
+  const val = document.getElementById("canvasSize").value;
+  
+  if (val === "custom") {
+    w = parseInt(document.getElementById("customWidth").value) || 900;
+    h = parseInt(document.getElementById("customHeight").value) || 600;
+  } 
+  else if (val === "A4") {
+    w = 2480;
+    h = 3508;
+  } 
+  else if (val === "auto") {
+    // No hacer nada, se establecerá con la primera imagen
+    return;
+  }
+  else {
+    [w, h] = val.split("x").map(Number);
+  }
+  
+  // Cambiar tamaño del canvas
+  canvas.width = w;
+  canvas.height = h;
+  canvasInitialized = true;
+  
+  redraw();
+}
+
+// Exportar imagen
+function downloadCanvas() {
+  const link = document.createElement('a');
+  link.download = 'diseño.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
+</script>
+</body>
+</html>erta aquí tu index.html completo con el CSS mejorado y las funciones -->
